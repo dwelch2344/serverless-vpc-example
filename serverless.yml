@@ -1,0 +1,40 @@
+# Welcome to serverless. Read the docs
+# https://serverless.com/framework/docs/
+
+# Serverless.yml is the configuration the CLI
+# uses to deploy your code to your provider of choice
+
+# The `service` block is the name of the service
+service: vpc-example
+
+# The `provider` block defines where your service will be deployed
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: us-west-2
+  stage: localhost
+
+custom:
+  stage: '${opt:stage, self:provider.stage}'
+
+plugins:
+  - serverless-offline
+
+# The `functions` block defines what code to deploy
+functions:
+  helloWorld:
+    vpc:
+      securityGroupIds:
+        - sg-094a6212f35d10095
+      subnetIds:
+        - subnet-0e7511344a1cf6db2
+        - subnet-05765eb9e51f80a16
+        - subnet-003b9ce732cd0a232
+    environment: ${file(env.yml):${self:custom.stage}}
+    handler: handler.helloWorld
+    # The `events` block defines how to trigger the handler.helloWorld code
+    events:
+      - http:
+          path: hello-world
+          method: get
+          cors: true
